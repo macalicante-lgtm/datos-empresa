@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Datos de la empresa · FE · IES Severo Ochoa</title>
+  <style>
+    :root {
+      --azul: #185FA5;
+      --azul-claro: #E8F0F9;
+      --texto: #1F2A37;
+      --suave: #5B6675;
+      --borde: #D5DCE4;
+      --fondo: #F4F6F9;
+      --ok: #3B6D11;
+      --ok-bg: #EAF3DE;
+      --error: #A32D2D;
+      --error-bg: #FCEBEB;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--fondo); color: var(--texto); line-height: 1.5;
+      padding: 32px 16px 64px;
+    }
+    .hoja { max-width: 680px; margin: 0 auto; }
+    .centro { font-size: 13px; color: var(--suave); margin-bottom: 6px; }
+    h1 { font-size: 24px; font-weight: 650; letter-spacing: -0.01em; margin-bottom: 10px; }
+    .intro { font-size: 15px; color: var(--suave); margin-bottom: 28px; max-width: 60ch; }
+    .intro strong { color: var(--texto); font-weight: 600; }
+
+    fieldset {
+      border: 1px solid var(--borde); border-radius: 10px; background: white;
+      padding: 22px 22px 8px; margin-bottom: 20px;
+    }
+    legend {
+      font-size: 16px; font-weight: 600; padding: 0 8px; margin-left: -8px; color: var(--azul);
+    }
+    .ayuda-seccion { font-size: 13px; color: var(--suave); margin: -4px 0 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+    .ancho { grid-column: 1 / -1; }
+    .campo { margin-bottom: 14px; }
+    label { font-size: 13px; color: var(--suave); display: block; margin-bottom: 4px; }
+    .req { color: var(--error); }
+    input, select {
+      width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--borde);
+      font-size: 15px; font-family: inherit; color: var(--texto); background: white;
+    }
+    input:focus, select:focus { outline: 2px solid var(--azul); outline-offset: 1px; border-color: var(--azul); }
+    input.mal { border-color: var(--error); background: var(--error-bg); }
+    .msg-campo { font-size: 12px; color: var(--error); margin-top: 3px; min-height: 0; }
+
+    .tipos { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tipos label {
+      display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;
+      border: 1px solid var(--borde); border-radius: 6px; padding: 8px 14px; font-size: 14px; color: var(--texto);
+    }
+    .tipos input { width: auto; }
+    .tipos label:has(input:checked) { border-color: var(--azul); background: var(--azul-claro); }
+
+    .copiar {
+      display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--texto);
+      background: var(--azul-claro); border-radius: 6px; padding: 10px 12px; margin-bottom: 16px; cursor: pointer;
+    }
+    .copiar input { width: auto; }
+
+    .btn {
+      width: 100%; background: var(--azul); color: white; border: none; padding: 14px;
+      border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; font-family: inherit;
+    }
+    .btn:hover { background: #134D86; }
+    .btn:disabled { background: #8FA3B8; cursor: not-allowed; }
+    .btn:focus-visible { outline: 3px solid #9CC1E6; outline-offset: 2px; }
+    .aviso-error {
+      background: var(--error-bg); color: var(--error); padding: 12px 14px; border-radius: 8px;
+      font-size: 14px; margin-bottom: 14px; display: none;
+    }
+    .legal { font-size: 12px; color: var(--suave); margin-top: 14px; }
+
+    .estado {
+      background: white; border: 1px solid var(--borde); border-radius: 10px; padding: 32px 26px; text-align: center;
+    }
+    .estado h2 { font-size: 20px; margin-bottom: 8px; }
+    .estado p { color: var(--suave); font-size: 15px; }
+    .estado.ok h2 { color: var(--ok); }
+    .oculto { display: none; }
+
+    @media (max-width: 560px) {
+      body { padding: 20px 12px 48px; }
+      h1 { font-size: 21px; }
+      fieldset { padding: 18px 14px 4px; }
+      .grid, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="hoja">
+    <p class="centro">IES Severo Ochoa (Elche) · Formación en Empresa</p>
+
+    <div id="cargando" class="estado"><p>Cargando formulario…</p></div>
+
+    <div id="invalido" class="estado oculto">
+      <h2>Este enlace no es válido</h2>
+      <p>Puede que esté incompleto o que haya caducado. Pide un enlace nuevo al tutor/a del centro que te lo envió.</p>
+    </div>
+
+    <div id="hecho" class="estado ok oculto">
+      <h2>Datos recibidos</h2>
+      <p id="hecho-texto">Gracias. Ya tenemos los datos de la empresa. No hace falta hacer nada más.</p>
+    </div>
+
+    <form id="formulario" class="oculto" novalidate>
+      <h1>Datos de la empresa para la FE</h1>
+      <p class="intro">
+        Para dar de alta a <strong id="nombre-empresa">vuestra empresa</strong> en SAÓ, la plataforma de la Conselleria
+        con la que gestionamos la Formación en Empresa del alumnado, necesitamos estos datos. Se tarda unos 3 minutos.
+      </p>
+
+      <fieldset>
+        <legend>Empresa</legend>
+        <div class="grid">
+          <div class="campo ancho">
+            <label for="razon_social">Nombre o razón social <span class="req">*</span></label>
+            <input id="razon_social" name="razon_social" required autocomplete="organization">
+          </div>
+          <div class="campo">
+            <label for="cif">CIF / NIF <span class="req">*</span></label>
+            <input id="cif" name="cif" required data-valida="documento" placeholder="B12345678">
+            <div class="msg-campo"></div>
+          </div>
+          <div class="campo">
+            <label for="telefono">Teléfono <span class="req">*</span></label>
+            <input id="telefono" name="telefono" type="tel" required data-valida="telefono" autocomplete="tel">
+            <div class="msg-campo"></div>
+          </div>
+          <div class="campo ancho">
+            <label for="direccion">Dirección <span class="req">*</span></label>
+            <input id="direccion" name="direccion" required autocomplete="street-address" placeholder="Calle, número, piso">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="campo">
+            <label for="codigo_postal">Código postal <span class="req">*</span></label>
+            <input id="codigo_postal" name="codigo_postal" required inputmode="numeric" maxlength="5" data-valida="cp" autocomplete="postal-code">
+            <div class="msg-campo"></div>
+          </div>
+          <div class="campo">
+            <label for="localidad">Localidad <span class="req">*</span></label>
+            <input id="localidad" name="localidad" required autocomplete="address-level2">
+          </div>
+          <div class="campo">
+            <label for="provincia">Provincia <span class="req">*</span></label>
+            <input id="provincia" name="provincia" required list="provincias" autocomplete="address-level1">
+          </div>
+        </div>
+        <div class="grid">
+          <div class="campo">
+            <label for="pais">País <span class="req">*</span></label>
+            <input id="pais" name="pais" required value="ESPAÑA">
+          </div>
+          <div class="campo">
+            <label for="horario">Horario habitual <span class="req">*</span></label>
+            <input id="horario" name="horario" required placeholder="L-V de 9:00 a 14:00 y de 16:00 a 19:00">
+          </div>
+          <div class="campo ancho">
+            <label>Tipo de entidad <span class="req">*</span></label>
+            <div class="tipos">
+              <label><input type="radio" name="tipo_entidad" value="Privada" checked> Privada</label>
+              <label><input type="radio" name="tipo_entidad" value="Pública"> Pública</label>
+              <label><input type="radio" name="tipo_entidad" value="Ente local"> Ente local</label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Gerente</legend>
+        <p class="ayuda-seccion">Persona que firma el convenio en nombre de la empresa.</p>
+        <div class="grid">
+          <div class="campo">
+            <label for="gerente_nombre">Nombre <span class="req">*</span></label>
+            <input id="gerente_nombre" name="gerente_nombre" required>
+          </div>
+          <div class="campo">
+            <label for="gerente_nif">NIF / NIE <span class="req">*</span></label>
+            <input id="gerente_nif" name="gerente_nif" required data-valida="nif">
+            <div class="msg-campo"></div>
+          </div>
+          <div class="campo">
+            <label for="gerente_apellido1">Primer apellido <span class="req">*</span></label>
+            <input id="gerente_apellido1" name="gerente_apellido1" required>
+          </div>
+          <div class="campo">
+            <label for="gerente_apellido2">Segundo apellido</label>
+            <input id="gerente_apellido2" name="gerente_apellido2">
+          </div>
+          <div class="campo ancho">
+            <label for="gerente_email">Correo electrónico <span class="req">*</span></label>
+            <input id="gerente_email" name="gerente_email" type="email" required data-valida="email">
+            <div class="msg-campo"></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Instructor/a</legend>
+        <p class="ayuda-seccion">Persona de la empresa que acompañará al alumno/a durante la FE.</p>
+        <label class="copiar"><input type="checkbox" id="mismo"> Es la misma persona que el gerente</label>
+        <div class="grid" id="bloque-instructor">
+          <div class="campo">
+            <label for="instructor_nombre">Nombre <span class="req">*</span></label>
+            <input id="instructor_nombre" name="instructor_nombre" required>
+          </div>
+          <div class="campo">
+            <label for="instructor_nif">NIF / NIE <span class="req">*</span></label>
+            <input id="instructor_nif" name="instructor_nif" required data-valida="nif">
+            <div class="msg-campo"></div>
+          </div>
+          <div class="campo">
+            <label for="instructor_apellido1">Primer apellido <span class="req">*</span></label>
+            <input id="instructor_apellido1" name="instructor_apellido1" required>
+          </div>
+          <div class="campo">
+            <label for="instructor_apellido2">Segundo apellido</label>
+            <input id="instructor_apellido2" name="instructor_apellido2">
+          </div>
+          <div class="campo ancho">
+            <label for="instructor_email">Correo electrónico <span class="req">*</span></label>
+            <input id="instructor_email" name="instructor_email" type="email" required data-valida="email">
+            <div class="msg-campo"></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <div id="aviso-error" class="aviso-error" role="alert"></div>
+      <button type="submit" class="btn" id="enviar">Enviar datos al centro</button>
+      <p class="legal">
+        Usaremos estos datos solo para gestionar la Formación en Empresa del alumnado y darla de alta en SAÓ (Conselleria de Educación).
+      </p>
+    </form>
+
+    <datalist id="provincias">
+      <option>Alicante</option><option>Valencia</option><option>Castellón</option><option>Murcia</option>
+      <option>Albacete</option><option>Almería</option><option>Álava</option><option>Asturias</option>
+      <option>Ávila</option><option>Badajoz</option><option>Baleares</option><option>Barcelona</option>
+      <option>Burgos</option><option>Cáceres</option><option>Cádiz</option><option>Cantabria</option>
+      <option>Ceuta</option><option>Ciudad Real</option><option>Córdoba</option><option>A Coruña</option>
+      <option>Cuenca</option><option>Girona</option><option>Granada</option><option>Guadalajara</option>
+      <option>Gipuzkoa</option><option>Huelva</option><option>Huesca</option><option>Jaén</option>
+      <option>La Rioja</option><option>Las Palmas</option><option>León</option><option>Lleida</option>
+      <option>Lugo</option><option>Madrid</option><option>Málaga</option><option>Melilla</option>
+      <option>Navarra</option><option>Ourense</option><option>Palencia</option><option>Pontevedra</option>
+      <option>Salamanca</option><option>Santa Cruz de Tenerife</option><option>Segovia</option><option>Sevilla</option>
+      <option>Soria</option><option>Tarragona</option><option>Teruel</option><option>Toledo</option>
+      <option>Valladolid</option><option>Bizkaia</option><option>Zamora</option><option>Zaragoza</option>
+    </datalist>
+  </main>
+
+  <script>
+    // ---- Configuración ---------------------------------------------------
+    const SUPABASE_URL = 'https://isylpuowetmqgfmslrhb.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzeWxwdW93ZXRtcWdmbXNscmhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTI5NTcsImV4cCI6MjA5MzU2ODk1N30.iFlyFsxfUY45PWlwkDf3AKzPXfCaf47O3TgTFnuVLq8' // clave pública (anon), la misma de src/supabase.js
+
+    const CAMPOS = [
+      'razon_social', 'cif', 'direccion', 'codigo_postal', 'localidad', 'provincia', 'pais', 'telefono', 'horario',
+      'gerente_nif', 'gerente_nombre', 'gerente_apellido1', 'gerente_apellido2', 'gerente_email',
+      'instructor_nif', 'instructor_nombre', 'instructor_apellido1', 'instructor_apellido2', 'instructor_email'
+    ]
+    const PARES = ['nif', 'nombre', 'apellido1', 'apellido2', 'email']
+
+    const token = new URLSearchParams(location.search).get('t')
+    const $ = id => document.getElementById(id)
+
+    async function rpc(funcion, cuerpo) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${funcion}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(cuerpo)
+      })
+      if (!r.ok) throw new Error(await r.text())
+      return r.json()
+    }
+
+    function mostrar(id) {
+      ['cargando', 'invalido', 'hecho', 'formulario'].forEach(x => $(x).classList.toggle('oculto', x !== id))
+    }
+
+    // ---- Validaciones ----------------------------------------------------
+    const LETRAS_NIF = 'TRWAGMYFPDXBNJZSQVHLCKE'
+    function nifValido(v) {
+      v = v.toUpperCase().replace(/[\s-]/g, '')
+      let m = v.match(/^(\d{8})([A-Z])$/)
+      if (m) return LETRAS_NIF[parseInt(m[1], 10) % 23] === m[2]
+      m = v.match(/^([XYZ])(\d{7})([A-Z])$/)
+      if (m) {
+        const n = parseInt('XYZ'.indexOf(m[1]) + m[2], 10)
+        return LETRAS_NIF[n % 23] === m[3]
+      }
+      return false
+    }
+    function cifValido(v) {
+      v = v.toUpperCase().replace(/[\s-]/g, '')
+      const m = v.match(/^([ABCDEFGHJNPQRSUVW])(\d{7})([0-9A-J])$/)
+      if (!m) return false
+      const d = m[2].split('').map(Number)
+      let suma = 0
+      d.forEach((n, i) => {
+        if (i % 2 === 0) { const x = n * 2; suma += Math.floor(x / 10) + (x % 10) }
+        else suma += n
+      })
+      const control = (10 - (suma % 10)) % 10
+      const letra = 'JABCDEFGHI'[control]
+      if ('PQRSNW'.includes(m[1])) return m[3] === letra
+      if ('ABEH'.includes(m[1])) return m[3] === String(control)
+      return m[3] === String(control) || m[3] === letra
+    }
+    const REGLAS = {
+      nif: v => nifValido(v) || 'Revisa el NIF/NIE: la letra no coincide o el formato no es correcto.',
+      documento: v => cifValido(v) || nifValido(v) || 'Revisa el CIF/NIF: el formato o el dígito de control no es correcto.',
+      email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Escribe un correo con el formato nombre@dominio.es',
+      cp: v => /^\d{5}$/.test(v) || 'El código postal tiene 5 cifras.',
+      telefono: v => v.replace(/[\s.+-]/g, '').length >= 9 || 'Escribe un teléfono de al menos 9 cifras.'
+    }
+
+    function validarCampo(input) {
+      const v = input.value.trim()
+      const msg = input.parentElement.querySelector('.msg-campo')
+      let error = ''
+      if (input.required && !v) error = 'Campo obligatorio.'
+      else if (v && input.dataset.valida) {
+        const r = REGLAS[input.dataset.valida](v)
+        if (r !== true) error = r
+      }
+      input.classList.toggle('mal', !!error)
+      if (msg) msg.textContent = error === 'Campo obligatorio.' ? '' : error
+      return !error
+    }
+
+    // ---- Instructor = gerente --------------------------------------------
+    function copiarGerente() {
+      if (!$('mismo').checked) return
+      PARES.forEach(p => { $('instructor_' + p).value = $('gerente_' + p).value })
+    }
+    $('mismo').addEventListener('change', () => {
+      const igual = $('mismo').checked
+      PARES.forEach(p => { $('instructor_' + p).readOnly = igual })
+      if (igual) copiarGerente()
+    })
+    PARES.forEach(p => $('gerente_' + p).addEventListener('input', copiarGerente))
+
+    // ---- Carga inicial ---------------------------------------------------
+    async function iniciar() {
+      if (!token || !/^[0-9a-f-]{36}$/i.test(token)) return mostrar('invalido')
+      try {
+        const d = await rpc('sao_obtener_empresa', { p_token: token })
+        if (d.estado === 'no_encontrado') return mostrar('invalido')
+        if (d.estado === 'completado') {
+          $('hecho-texto').textContent = `Los datos de ${d.nombre} ya se enviaron. Si necesitas cambiar algo, contacta con el tutor/a del centro.`
+          return mostrar('hecho')
+        }
+        $('nombre-empresa').textContent = d.nombre
+        CAMPOS.forEach(c => { if (d[c]) $(c).value = d[c] })
+        const tipo = document.querySelector(`input[name="tipo_entidad"][value="${d.tipo_entidad}"]`)
+        if (tipo) tipo.checked = true
+        mostrar('formulario')
+      } catch (e) {
+        mostrar('invalido')
+      }
+    }
+
+    document.querySelectorAll('#formulario input:not([type=radio]):not([type=checkbox])')
+      .forEach(i => i.addEventListener('blur', () => { if (i.value) validarCampo(i) }))
+
+    $('formulario').addEventListener('submit', async ev => {
+      ev.preventDefault()
+      copiarGerente()
+      const inputs = [...document.querySelectorAll('#formulario input:not([type=radio]):not([type=checkbox])')]
+      const malos = inputs.filter(i => !validarCampo(i))
+      const aviso = $('aviso-error')
+      if (malos.length) {
+        aviso.textContent = `Faltan datos o hay errores en ${malos.length} campo${malos.length > 1 ? 's' : ''}. Están marcados en rojo.`
+        aviso.style.display = 'block'
+        malos[0].focus()
+        return
+      }
+      aviso.style.display = 'none'
+      const datos = {}
+      CAMPOS.forEach(c => { datos[c] = $(c).value.trim() })
+      datos.tipo_entidad = document.querySelector('input[name="tipo_entidad"]:checked').value
+
+      const btn = $('enviar')
+      btn.disabled = true
+      btn.textContent = 'Enviando…'
+      try {
+        const r = await rpc('sao_guardar_empresa', { p_token: token, p_datos: datos })
+        if (!r.ok) throw new Error(r.error)
+        mostrar('hecho')
+        window.scrollTo(0, 0)
+      } catch (e) {
+        aviso.textContent = 'No se han podido enviar los datos. Comprueba la conexión y vuelve a pulsar "Enviar datos al centro".'
+        aviso.style.display = 'block'
+        btn.disabled = false
+        btn.textContent = 'Enviar datos al centro'
+      }
+    })
+
+    iniciar()
+  </script>
+</body>
+</html>
