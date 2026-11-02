@@ -108,7 +108,7 @@
 
     <div id="hecho" class="estado ok oculto">
       <h2>Datos recibidos</h2>
-      <p id="hecho-texto">Gracias. Ya tenemos los datos de la empresa. No hace falta hacer nada más.</p>
+      <p id="hecho-texto">Hemos recibido los datos de la empresa. Volveremos a contactar con vosotros para indicaros los próximos pasos. ¡Muchas gracias por vuestra colaboración!</p>
     </div>
 
     <form id="formulario" class="oculto" novalidate>
@@ -361,7 +361,7 @@
         const d = await rpc('sao_obtener_empresa', { p_token: token })
         if (d.estado === 'no_encontrado') return mostrar('invalido')
         if (d.estado === 'completado') {
-          $('hecho-texto').textContent = `Los datos de ${d.nombre} ya se enviaron. Si necesitas cambiar algo, contacta con el tutor/a del centro.`
+          $('hecho-texto').textContent = `Ya recibimos los datos de ${d.nombre}. Volveremos a contactar con vosotros para indicaros los próximos pasos. Si necesitáis cambiar algo, escribid al tutor/a del centro que os envió el enlace.`
           return mostrar('hecho')
         }
         $('nombre-empresa').textContent = d.nombre
